@@ -1,5 +1,7 @@
+import { env } from "../env/index.js";
 import type { UserRepositoryInterface } from "../repositories/contracts/UserRepositoryInterface.js";
 import { compare } from "bcrypt";
+import jwt from "jsonwebtoken"
 
 export class LoginUserService {
   constructor(private userRepository: UserRepositoryInterface) {}
@@ -17,9 +19,18 @@ export class LoginUserService {
       throw new Error("Senha inválida");
     }
 
+    const token = jwt.sign(
+      {},
+      env.JWT_SECRET,
+      {
+        subject:String(user.id),
+        expiresIn:"1h"
+      }
+    )
+
     const { password: _, ...userWithoutPassword } = user;
 
-    return userWithoutPassword;
+    return { user: userWithoutPassword, token };
   }
 
   private async comparePassword(password: string, userPassword: string) {
