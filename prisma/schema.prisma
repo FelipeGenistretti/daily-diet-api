@@ -7,24 +7,34 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Goal {
+  HIPERTROFIA
+  LOW_CARB
+  EMAGRECIMENTO
+  MANUTENCAO
+}
+
 model User {
-  id        Int       @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   name      String
-  email     String    @unique
+  email     String     @unique
   password  String
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime? @map("updated_at")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
   meals     Meal[]
+  DietPlan  DietPlan[]
 
   @@map("users")
 }
 
 model Meal {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   name        String
   description String
-  datetime    DateTime @map("date_time")
-  isOnDiet    Boolean  @map("is_on_diet")
+  datetime    DateTime? @map("date_time")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   user   User   @relation(fields: [userId], references: [id])
   userId Int
@@ -37,13 +47,31 @@ model Food {
   id           Int    @id @default(autoincrement())
   name         String
   description  String
-  carbohydrate Int
-  protein      Int
-  calories     Int
-  fat          Int
+  carbohydrate Float
+  protein      Float
+  calories     Float
+  fat          Float
 
   meal   Meal @relation(fields: [mealId], references: [id])
   mealId Int
 
   @@map("foods")
+}
+
+model DietPlan {
+  id             Int      @id @default(autoincrement())
+  goal           Goal
+  caloriesTarget Float
+  proteinTarget  Float
+  carbTarget     Float
+  fatTarget      Float
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  isActive       Boolean
+  isOnDiet       Boolean
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  @@map("diet_plans")
 }
