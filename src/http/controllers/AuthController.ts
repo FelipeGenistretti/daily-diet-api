@@ -41,7 +41,18 @@ class AuthController {
       const { name, email, password } = await bodySchema.parseAsync(request.body)
 
       const userRegisterService = makeUserRegisterService();
-      const user = userRegisterService.execute();
+      const {user, token} = await userRegisterService.execute(name, email, password);
+
+      return reply.status(201).send({
+        message:"usuario registrado com sucesso",
+        user:  {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          createdAt: user.createdAt
+        },
+        token:token
+      })
 
 
     } catch (error) {
